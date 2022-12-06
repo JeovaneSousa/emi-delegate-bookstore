@@ -7,11 +7,16 @@
 
 import UIKit
 
+protocol NovaTecnologiaViewControllerDelegate: AnyObject {
+    func NovaTecnologiaViewController(_ viewController: NovaTecnologiaViewController, adicionouTecnologia tecnologia: String)
+}
+
 class NovaTecnologiaViewController: UIViewController {
     
     typealias MensagemDeValidacao = String
 
     @IBOutlet weak var tecnologiaTextField: UITextField!
+    var delegate: NovaTecnologiaViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,7 +42,12 @@ class NovaTecnologiaViewController: UIViewController {
     }
     
     func adicionaTecnologia() {
-        // lógica vai aqui
+        let tecnologia = tecnologiaTextField.text!
+        
+        guard let delegate = delegate else { return }
+        delegate.NovaTecnologiaViewController(self, adicionouTecnologia: tecnologia)
+        
+        self.dismiss(animated: true)
     }
     
 }

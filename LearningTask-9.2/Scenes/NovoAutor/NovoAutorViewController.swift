@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol NovoAutorViewControllerDelegate: AnyObject {
+    func NovoAutorViewController(_ viewController: NovoAutorViewController, adicionouAutor autor: Autor)
+}
+
 class NovoAutorViewController: UIViewController {
 
     typealias MensagemDeValidacao = String
@@ -16,6 +20,8 @@ class NovoAutorViewController: UIViewController {
     @IBOutlet weak var bioTextField: UITextField!
     @IBOutlet weak var tecnologiasTableView: UITableView!
     
+    var delegate: NovoAutorViewControllerDelegate?
+    
     var tecnologias: [String] = [] {
         didSet {
             tecnologiasTableView.reloadData()
@@ -24,6 +30,15 @@ class NovoAutorViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "verCampoNovaTecnologiaSegue" else { return }
+        
+        guard let destination = segue.destination as? NovaTecnologiaViewController else {
+            fatalError("Unable to acquire necessary data to complete segue \(segue.identifier!)")
+        }
+        destination.delegate = self
     }
 
     @IBAction func botaoSalvarPressionado(_ sender: UIButton) {
@@ -73,7 +88,11 @@ class NovoAutorViewController: UIViewController {
     }
     
     func cadastraAutor() {
-       // lógica vai aqui
+        let (nome, sobrenome) = separa(nomeDeAutor: nomeTextField.text!)
+        let autor = Autor(foto: fotoTextField.text!, nome: nome, sobrenome: sobrenome , bio: bioTextField.text!, tecnologias: tecnologias)
+        
+        delegate?.NovoAutorViewController(self, adicionouAutor: autor)
+        self.dismiss(animated: true)
     }
 
 }
@@ -92,5 +111,13 @@ extension NovoAutorViewController: UITableViewDataSource {
         celula.tecnologia = tecnologias[indexPath.row]
         return celula
     }
+    
+}
+
+extension NovoAutorViewController: NovaTecnologiaViewControllerDelegate {
+    func NovaTecnologiaViewController(_ viewController: NovaTecnologiaViewController, adicionouTecnologia tecnologia: String) {
+        tecnologias.append(tecnologia)
+    }
+    
     
 }
